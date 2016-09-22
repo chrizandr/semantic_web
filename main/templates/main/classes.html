@@ -1,0 +1,95 @@
+<!--
+{% load static %}
+<link rel="stylesheet" href="{% static 'main/jqwidgets/styles/jqx.base.css' %}" type="text/css" />
+<script type="text/javascript" src="{% static 'main/scripts/jquery-1.11.1.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/scripts/demos.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxcore.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxdata.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxbuttons.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxscrollbar.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxpanel.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxtree.js' %}"></script>
+<script type="text/javascript" src="{% static 'main/jqwidgets/jqxcheckbox.js' %}"></script>
+-->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Semantic Web Forms</title>
+
+    <link rel="stylesheet" href="/static/jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="/static/scripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/static/scripts/demos.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxpanel.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxtree.js"></script>
+    <script type="text/javascript" src="/static/jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+          alert("hi");
+          var data = {{ tree_object }}
+          widget.init(data_from_django);
+          // prepare the data
+          var source =
+          {
+              datatype: "json",
+              datafields: [
+                  { name: 'id' },
+                  { name: 'parentid' },
+                  { name: 'text' }
+              ],
+              id: 'id',
+              localdata: data
+          };
+            // create data adapter.
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            // perform Data Binding.
+            dataAdapter.dataBind();
+            // get the tree items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+            // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+            // specifies the mapping between the 'text' and 'label' fields.
+            var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label'}]);
+            $('#jqxWidget').jqxTree({ source: records, width: '300px',checkboxes:true, hasThreeStates:true});
+            $('#jqxWidget').css('visibility', 'visible');
+            $("#jqxbutton").jqxButton({theme: 'energyblue',width: 200,height: 30  });
+            //var newCheckState = true;
+            //$("#jqxTree").jqxTree('checkItem', $("#government")[0], newCheckState);
+            $('#jqxbutton').click(function () {
+                var str = "";
+                var items = $('#jqxWidget').jqxTree('getCheckedItems');
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    str += item.label + ",";
+                  }
+                  alert("The checked items are " + str);
+                });
+          //  $('#jqxCheckBox').jqxCheckBox({ width: '200px', height: '25px', checked: true });
+          //  $('#jqxCheckBox').on('change', function (event) {
+        //        var checked = event.args.checked;
+          //      $('#jqxWidget').jqxTree({ hasThreeStates: checked });
+          //  });
+            //$("#jqxWidget").jqxTree('selectItem', $("#home")[0]);
+        });
+    </script>
+</head>
+<body>
+    <div id='content'>
+        <div id='jqxWidget'>
+          <p>Hello</p>
+        </div>
+        <input type="button" style="margin: 10px;" id="jqxbutton" value="Submit form" />
+    </div>
+</body>
+</html>
