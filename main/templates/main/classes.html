@@ -2,51 +2,15 @@
 <html lang="en">
 <head>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Semantic Web Forms</title>
-    <link rel="stylesheet" href="/static/jqwidgets/styles/jqx.base.css" type="text/css" />
-    <link href="/static/main/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/main/css/freelancer.min.css" rel="stylesheet">
-    <link href="/static/main/font-awesome/css/font-awesome.min.css/" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="/static/scripts/jquery-1.11.1.min.js"></script>
-    <script type="text/javascript" src="/static/scripts/demos.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxcore.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxdata.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxbuttons.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxscrollbar.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxpanel.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxtree.js"></script>
-    <script type="text/javascript" src="/static/jqwidgets/jqxcheckbox.js"></script>
+{% include "main/meta.html" %}
+    {% include "main/classes_scripts.html" %}
     <script type="text/javascript">
-
         $(document).ready(function () {
-          //data from python classes function from views.py
           var data = {{tree_object | safe}};
-          // prepare the data
-          var source =
-          {
-              datatype: "json",
-              datafields: [
-                  { name: 'id' },
-                  { name: 'parentid' },
-                  { name: 'text' }
-              ],
-              id: 'id',
-              localdata: data
-          };
-            // create data adapter.
+          var source ={datatype: "json",datafields: [{ name: 'id' },{ name: 'parentid' },{ name: 'text' }],
+              id: 'id',localdata: data};
             var dataAdapter = new $.jqx.dataAdapter(source);
-            // perform Data Binding.
             dataAdapter.dataBind();
-            // get the tree items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
-            // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
-            // specifies the mapping between the 'text' and 'label' fields.
             var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label'}]);
             $('#jqxWidget').jqxTree({ source: records, width: '300px',checkboxes:true, hasThreeStates:true});
             $('#jqxWidget').css('visibility', 'visible');
@@ -60,23 +24,12 @@
                   }
                   alert("The checked items are " + str);
                 });
-        });
+          });
     </script>
 </head>
 
-
 <body>
-  <nav id="mainNav" class="navbar navbar-default navbar-fixed-top navbar-custom">
-      <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
-          <div class="navbar-header page-scroll">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                  <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
-              </button>
-              <a class="navbar-brand" href="#page-top">Semantic Web Forms</a>
-          </div>
-      </div>
-  </nav>
+{% include "main/navbar.html" %}
   <section id="form">
     <br><br>
       <div class="container">
@@ -91,14 +44,7 @@
         </div>
       </section>
 
-
-    <!--
-    <script src="/static/main/js/jquery.min.js"></script>-->
-    <script src="/static/main/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    <script src="/static/main/js/jqBootstrapValidation.js"></script>
-    <script src="/static/main/js/contact_me.js"></script>
-    <script src="/static/main/js/freelancer.min.js"></script>
+{% include "main/classes_scripts2.html" %}
 
 </body>
 </html>

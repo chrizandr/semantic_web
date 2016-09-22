@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import Owl
 from django.shortcuts import render
 from ontospy import *
+from .forms import OwlForm
 import json
 # Create your views here.
 
@@ -13,7 +15,14 @@ def index(request):
 
 
 def uploads(request):
+    form = OwlForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        print form.cleaned_data.get('OWLfile')
+        instance.save()
+        return HttpResponseRedirect(reverse('classes'))
     context = dict()
+    context["form"] = form
     return render(request, 'main/upload.html', context)
 
 def classes(request):
