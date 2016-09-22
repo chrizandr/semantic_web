@@ -24,7 +24,7 @@ def classes(request):
     tree=generateTree(inputGraph)
     context = dict()
     context['tree_object'] = tree
-    return render(request, 'main/classes.html' , context )
+    return render(request,'main/classes.html' , context )
 
 
 

@@ -12,8 +12,6 @@
 <script type="text/javascript" src="{% static 'main/jqwidgets/jqxcheckbox.js' %}"></script>
 -->
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,9 +36,8 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-          alert("hi");
-          var data = {{ tree_object }}
-          widget.init(data_from_django);
+          //data from python classes function from views.py
+          var data = {{tree_object | safe}};
           // prepare the data
           var source =
           {
@@ -64,8 +61,6 @@
             $('#jqxWidget').jqxTree({ source: records, width: '300px',checkboxes:true, hasThreeStates:true});
             $('#jqxWidget').css('visibility', 'visible');
             $("#jqxbutton").jqxButton({theme: 'energyblue',width: 200,height: 30  });
-            //var newCheckState = true;
-            //$("#jqxTree").jqxTree('checkItem', $("#government")[0], newCheckState);
             $('#jqxbutton').click(function () {
                 var str = "";
                 var items = $('#jqxWidget').jqxTree('getCheckedItems');
@@ -75,12 +70,6 @@
                   }
                   alert("The checked items are " + str);
                 });
-          //  $('#jqxCheckBox').jqxCheckBox({ width: '200px', height: '25px', checked: true });
-          //  $('#jqxCheckBox').on('change', function (event) {
-        //        var checked = event.args.checked;
-          //      $('#jqxWidget').jqxTree({ hasThreeStates: checked });
-          //  });
-            //$("#jqxWidget").jqxTree('selectItem', $("#home")[0]);
         });
     </script>
 </head>
