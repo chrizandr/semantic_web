@@ -18,8 +18,9 @@ def uploads(request):
 
 def classes(request):
     context = dict()
-    fileName = Owl.objects.order_by('timestamp')[0]
+    fileName = Owl.objects.order_by('-timestamp')[0]
     filePath = str(fileName.OWLfile.path)
+    print filePath
     inputGraph= Graph(filePath)
     tree=generateTree(inputGraph)
     context = dict()
