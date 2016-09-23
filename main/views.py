@@ -6,13 +6,11 @@ from django.shortcuts import render
 from ontospy import *
 from .forms import OwlForm
 import json
-# Create your views here.
 
 
 def index(request):
     context=dict()
     return render(request,'main/index.html',context)
-
 
 def uploads(request):
     form = OwlForm(request.POST or None, request.FILES or None)
@@ -36,17 +34,19 @@ def classes(request):
     context['tree_object'] = tree
     return render(request,'main/classes.html' , context )
 
-
+def create_dict(node,node_id,parent_id):
+    node_dict=dict()
+    node_dict["id"]=node_id
+    node_dict["text"]=(str(node).split('#')[-1]).strip('*>')
+    node_dict["parentid"]=parent_id
+    return node_dict
 
 def getAllChildren(node,class_id):
     child_list=list()
     parentid=class_id
     class_id+=1
     for child in node.children():
-        class_dict= dict()
-        class_dict["id"]=class_id
-        class_dict["text"]=(str(child).split('#')[-1]).strip('*>')
-        class_dict["parentid"]=parentid
+        class_dict= create_dict(child,class_id,parentid)
         child_list.append(class_dict)
         sub_list=getAllChildren(child,class_id)
         class_id+=1
@@ -59,10 +59,7 @@ def generateTree(graph):
     classlist=list()
     class_id=1
     for each_class in graph.toplayer:
-        class_dict= dict()
-        class_dict["id"]=class_id
-        class_dict["text"]=(str(each_class).split('#')[-1]).strip('*>')
-        class_dict["parentid"]=-1
+        class_dict= create_dict(each_class,class_id,-1)
         child_list=getAllChildren(each_class,class_id)
         classlist.append(class_dict)
         for each_child in child_list:
