@@ -23,6 +23,16 @@ def uploads(request):
     context["form"] = form
     return render(request, 'main/upload.html', context)
 
+def instances(request):
+    if request.method == "POST":
+        data = request.POST.get('str')
+        print data
+        context['data'] = data
+        context['flag'] = 1
+    else:
+        context['flag'] = 0
+    return render(request, 'main/instances.html' , context)
+
 def classes(request):
     context = dict()
     fileName = Owl.objects.order_by('-timestamp')[0]
