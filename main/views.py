@@ -16,8 +16,8 @@ def uploads(request):
     form = OwlForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         instance = form.save(commit=False)
-        print form.cleaned_data.get('OWLfile')
         instance.save()
+        print "The ID is ........\n\n\n", instance.id
         return HttpResponseRedirect(reverse('classes'))
     context = dict()
     context["form"] = form

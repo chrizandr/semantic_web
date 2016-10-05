@@ -30,7 +30,7 @@
                     <form name="sentMessage" id="contactForm" method="POST" action="" enctype="multipart/form-data" novalidate>{% csrf_token %}
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
-                                <label>OWL File </label><br><br>{{form.as_p}}
+                                {{form}}
                             </div>
                         </div>
                         <br>
