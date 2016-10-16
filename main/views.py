@@ -29,12 +29,14 @@ class FormProcess(View):
                 instance = form.save(commit=False)
                 instance.save()
                 filePath = instance.OWLfile.path
+                print "--------------------------------"
+                print filePath
                 self.inputGraph= Graph(filePath)
                 tree=generateTree(self.inputGraph)
                 context = dict()
                 context['tree_object'] = tree
                 return render(request,self.template_name , context )
-        # except MultiValueDictKeyError:
+        # except MultiValue DictKeyError:
         #     print "error"
 
     def get(self,request, *args , **kwargs):
@@ -119,8 +121,8 @@ def getClasses(request):
     filePath = str(fileName.OWLfile.path)
     print filePath
     g = Graph(filePath)
-    s = 'Pizza'
-    class_names = s.split(',')
+    s = 'DomainConcept<br>Food<br>IceCream<br>Pizza<br>NamedPizza<br>American<br>AmericanHot<br>Cajun<br>Capricciosa<br>Caprina<br>Fiorentina<br>FourSeasons<br>FruttiDiMare<br>Giardiniera<br>LaReine<br>Margherita<br>Mushroom<br>Napoletana<br>Parmense<br>PolloAdAstra<br>PrinceCarlo<br>QuattroFormaggi<br>Rosa<br>Siciliana<br>SloppyGiuseppe<br>Soho<br>UnclosedPizza<br>Veneziana<br>PizzaBase<br>DeepPanBase<br>ThinAndCrispyBase<br>PizzaTopping<br>CheeseTopping<br>CheeseyVegetableTopping<br>FourCheesesTopping<br>GoatsCheeseTopping<br>GorgonzolaTopping<br>MozzarellaTopping<br>ParmesanTopping<br>FishTopping<br>AnchoviesTopping<br>MixedSeafoodTopping<br>PrawnsTopping<br>FruitTopping<br>SultanaTopping<br>HerbSpiceTopping<br>CajunSpiceTopping<br>RosemaryTopping<br>MeatTopping<br>ChickenTopping<br>HamTopping<br>ParmaHamTopping<br>HotSpicedBeefTopping<br>PeperoniSausageTopping<br>NutTopping<br>PineKernels<br>SauceTopping<br>TobascoPepperSauce<br>VegetableTopping<br>ArtichokeTopping<br>AsparagusTopping<br>CaperTopping<br>CheeseyVegetableTopping<br>GarlicTopping<br>LeekTopping<br>MushroomTopping<br>OliveTopping<br>OnionTopping<br>RedOnionTopping<br>PepperTopping<br>GreenPepperTopping<br>HotGreenPepperTopping<br>JalapenoPepperTopping<br>PeperonataTopping<br>SweetPepperTopping<br>PetitPoisTopping<br>RocketTopping<br>SpinachTopping<br>TomatoTopping<br>SlicedTomatoTopping<br>SundriedTomatoTopping<br>'
+    class_names = s.split('<br>')
     class_list = list()
     name_list = list()
     for ontoclass in g.classes:
@@ -141,6 +143,4 @@ def getClasses(request):
             else:
                 classes[entry] = value
         pdb.set_trace()
-
-
     return render(request,'main/form.html',context)
