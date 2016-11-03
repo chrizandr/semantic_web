@@ -30,6 +30,12 @@
                     <form name="sentMessage" id="contactForm" method="POST" action="" enctype="multipart/form-data" novalidate>{% csrf_token %}
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
+                              {% if form_flag %}
+                              <span class="text-danger small">This field is required</span>
+                              {% endif %}
+                              {% if file_flag %}
+                              <span class="text-danger small">This file is not valid</span>
+                              {% endif %}
                                 {{form}}
                             </div>
                         </div>

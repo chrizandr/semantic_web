@@ -1,4 +1,4 @@
-e<!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
 
@@ -20,50 +20,36 @@ e<!DOCTYPE html>
                 var items = $('#jqxWidget').jqxTree('getCheckedItems');
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
-                    str += item.label + "<br>";
+                    str += item.label + ",";
                   }
                   console.log(str);
-                  alert(str);
-                  document.getElementById("content").innerHTML = 'You selected the following classes:<br><div id = "string">'+str+'</div>Would you like to confirm?<br><input type="button" id ="confirm" onClick="divFunction()" value="Confirm"/>';
+
+                  var url = '/form/';
+                  var form = $('<form action="' + url + '" method="post">' +
+                    '<input type="text" name="class_names" value="' + str + '" />' +
+                    '</form>');
+                  $('body').append(form);
+                  form.submit();
 
                 });
           });
-    </script>
-
-
-    <script>
-      function divFunction(){
-
-        var str = document.getElementById('string').innerHTML;
-        var data = {
-          "string" : str,
-        }
-        var Url = "../upload";
-        $.post(Url , data , function(){
-          console.log("Done");
-          alert("Done");});
-      }
     </script>
 </head>
 
 <body>
 {% include "main/navbar.html" %}
-  <section id="form">
-    <br><br>
-      <div class="container">
-          <div class="row">
-              <div class="col-lg-12 ">
-                <div id='content'>
-                  <div id='jqxWidget'></div>
-                  <input type="button" style="margin: 10px;" id="jqxbutton" value="Submit form" />
-                </div>
-              </div>
-          </div>
+<section id="form">
+  <br><br>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 ">
+        <div id='content'>
+          <div id='jqxWidget'></div>
+          <input type="button" style="margin: 10px;" id="jqxbutton" value="Submit form" />
         </div>
-      </section>
-
-    <p id="contents"></p>
-{% include "main/classes_scripts2.html" %}
-
+      </div>
+    </div>
+  </div>
+</section>
 </body>
 </html>

@@ -14,70 +14,75 @@ def index(request):
     context=dict()
     return render(request,'main/index.html',context)
 
-
 class FormProcess(View):
     form_class = OwlForm
-    template_name = None
     inputGraph = None
+    filePath = "temp.owl"
     def post(self,request, *args, **kwargs):
-        #try:
-            self.template_name = 'main/classes.html'
-            request.FILES["OWLfile"]
+        if request.FILES:
+            try:
+                self.handle_uploaded_file(request.FILES["OWLfile"])
+            except KeyError:
+                return self.construct_form(request,True,False)
+
             form = self.form_class(request.POST or None, request.FILES or None)
-            print request.FILES==None
             if form.is_valid():
-                instance = form.save(commit=False)
-                instance.save()
-                filePath = instance.OWLfile.path
-                print "--------------------------------"
-                print filePath
-                self.inputGraph= Graph(filePath)
+                try:
+                    self.inputGraph= Graph(self.filePath)
+                except:
+                    return self.construct_form(request,False,True)
+
                 tree=generateTree(self.inputGraph)
                 context = dict()
                 context['tree_object'] = tree
-                return render(request,self.template_name , context )
-        # except MultiValue DictKeyError:
-        #     print "error"
+                return render(request,"main/classes.html" , context )
+        else:
+             s = request.POST['class_names']
+             print s
+             filePath = "temp.owl"
+             g = self.inputGraph
+             class_names = s.split(',')
+             class_list = list()
+             name_list = list()
+             for ontoclass in g.classes:
+             	if str(ontoclass.uri).split('#')[1] in class_names:
+                         name = str(ontoclass.qname).split(':')[1]
+                         props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
+                         name_list.append((name,props))
+             context = dict()
+             context['class_list'] = name_list
+             if request.method == "POST":
+                 output = str()
+                 classes = dict()
+                 properties = dict()
+                 for entry in request.POST:
+                     value = str(request.POST[entry])
+                     if entry[0]=='_':
+                         properties[entry[1:]] = value
+                     else:
+                         classes[entry] = value
+             return render(request,'main/form.html',context)
 
     def get(self,request, *args , **kwargs):
+        if request.FILES:
+            print "Sending file"
+        else:
+            print "Doing shit"
         self.template_name = 'main/upload.html'
+        return self.construct_form(request,False,False)
+
+    def construct_form(self,request,form_flag,file_flag):
         form = self.form_class()
         context = dict()
         context["form"] = form
-        return render(request, self.template_name , context)
+        context['form_flag'] = form_flag
+        context['file_flag'] = file_flag
+        return render(request, "main/upload.html" , context)
 
-
-def uploads(request):
-    form = OwlForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        instance.save()
-        print "The ID is ........\n\n\n", instance.id
-        return HttpResponseRedirect(reverse('classes'))
-    context = dict()
-    context["form"] = form
-    return render(request, 'main/upload.html', context)
-
-def instances(request):
-    if request.method == "POST":
-        data = request.POST.get('str')
-        print data
-        context['data'] = data
-        context['flag'] = 1
-    else:
-        context['flag'] = 0
-    return render(request, 'main/instances.html' , context)
-
-def classes(request):
-    context = dict()
-    fileName = Owl.objects.order_by('-timestamp')[0]
-    filePath = str(fileName.OWLfile.path)
-    print filePath
-    inputGraph= Graph(filePath)
-    tree=generateTree(inputGraph)
-    context = dict()
-    context['tree_object'] = tree
-    return render(request,'main/classes.html' , context )
+    def handle_uploaded_file(self,f):
+        with open('temp.owl', 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
 
 def create_dict(node,node_id,parent_id):
     node_dict=dict()
@@ -114,33 +119,30 @@ def generateTree(graph):
     json.dumps(classlist)
     return classlist
 
-
-
 def getClasses(request):
-    fileName = Owl.objects.order_by('-timestamp')[0]
-    filePath = str(fileName.OWLfile.path)
-    print filePath
-    g = Graph(filePath)
-    s = 'DomainConcept<br>Food<br>IceCream<br>Pizza<br>NamedPizza<br>American<br>AmericanHot<br>Cajun<br>Capricciosa<br>Caprina<br>Fiorentina<br>FourSeasons<br>FruttiDiMare<br>Giardiniera<br>LaReine<br>Margherita<br>Mushroom<br>Napoletana<br>Parmense<br>PolloAdAstra<br>PrinceCarlo<br>QuattroFormaggi<br>Rosa<br>Siciliana<br>SloppyGiuseppe<br>Soho<br>UnclosedPizza<br>Veneziana<br>PizzaBase<br>DeepPanBase<br>ThinAndCrispyBase<br>PizzaTopping<br>CheeseTopping<br>CheeseyVegetableTopping<br>FourCheesesTopping<br>GoatsCheeseTopping<br>GorgonzolaTopping<br>MozzarellaTopping<br>ParmesanTopping<br>FishTopping<br>AnchoviesTopping<br>MixedSeafoodTopping<br>PrawnsTopping<br>FruitTopping<br>SultanaTopping<br>HerbSpiceTopping<br>CajunSpiceTopping<br>RosemaryTopping<br>MeatTopping<br>ChickenTopping<br>HamTopping<br>ParmaHamTopping<br>HotSpicedBeefTopping<br>PeperoniSausageTopping<br>NutTopping<br>PineKernels<br>SauceTopping<br>TobascoPepperSauce<br>VegetableTopping<br>ArtichokeTopping<br>AsparagusTopping<br>CaperTopping<br>CheeseyVegetableTopping<br>GarlicTopping<br>LeekTopping<br>MushroomTopping<br>OliveTopping<br>OnionTopping<br>RedOnionTopping<br>PepperTopping<br>GreenPepperTopping<br>HotGreenPepperTopping<br>JalapenoPepperTopping<br>PeperonataTopping<br>SweetPepperTopping<br>PetitPoisTopping<br>RocketTopping<br>SpinachTopping<br>TomatoTopping<br>SlicedTomatoTopping<br>SundriedTomatoTopping<br>'
-    class_names = s.split('<br>')
-    class_list = list()
-    name_list = list()
-    for ontoclass in g.classes:
-    	if str(ontoclass.uri).split('#')[1] in class_names:
-    	       name = str(ontoclass.qname).split(':')[1]
-               props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
-               name_list.append((name,props))
-    context = dict()
-    context['class_list'] = name_list
     if request.method == "POST":
-        output = str()
-        classes = dict()
-        properties = dict()
-        for entry in request.POST:
-            value = str(request.POST[entry])
-            if entry[0]=='_':
-                properties[entry[1:]] = value
-            else:
-                classes[entry] = value
-        pdb.set_trace()
-    return render(request,'main/form.html',context)
+        s = request.POST['class_names']
+        print s
+        filePath = "temp.owl"
+        g = Graph(filePath)
+        class_names = s.split(',')
+        class_list = list()
+        name_list = list()
+        for ontoclass in g.classes:
+        	if str(ontoclass.uri).split('#')[1] in class_names:
+                    name = str(ontoclass.qname).split(':')[1]
+                    props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
+                    name_list.append((name,props))
+        context = dict()
+        context['class_list'] = name_list
+        if request.method == "POST":
+            output = str()
+            classes = dict()
+            properties = dict()
+            for entry in request.POST:
+                value = str(request.POST[entry])
+                if entry[0]=='_':
+                    properties[entry[1:]] = value
+                else:
+                    classes[entry] = value
+        return render(request,'main/form.html',context)
