@@ -1,7 +1,6 @@
 {% load static %}
 <html lang="en">
 <head>
-
 {% include "main/meta.html" %}
     {% include "main/classes_scripts.html" %}
     <script type="text/javascript">
@@ -27,6 +26,7 @@
                   var url = '/form/';
                   var form = $('<form action="' + url + '" method="post">' +
                     '<input type="text" name="class_names" value="' + str + '" />' +
+                    '<input type="hidden" name="form" value="true"/>' +
                     '</form>');
                   $('body').append(form);
                   form.submit();

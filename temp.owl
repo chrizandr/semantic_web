@@ -707,6 +707,41 @@
         <rdfs:comment><![CDATA[]]></rdfs:comment>
         <rdfs:label>service_number</rdfs:label>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+        <rdfs:domain rdf:resource="#publication"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#service_date">
+        <rdfs:comment><![CDATA[]]></rdfs:comment>
+        <rdfs:label>service_number</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rdfs:domain rdf:resource="#publication"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="#service_label">
+        <rdfs:comment><![CDATA[]]></rdfs:comment>
+        <rdfs:label>service_number</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:domain rdf:resource="#publication"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#service_check">
+        <rdfs:comment><![CDATA[]]></rdfs:comment>
+        <rdfs:label>service_number</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:domain rdf:resource="#publication"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#service_uri">
+        <rdfs:comment><![CDATA[]]></rdfs:comment>
+        <rdfs:label>service_number</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+        <rdfs:domain rdf:resource="#publication"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#service_label">
+        <rdfs:comment><![CDATA[]]></rdfs:comment>
+        <rdfs:label>service_number</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:domain rdf:resource="#publication"/>
     </owl:DatatypeProperty>
     <owl:ObjectProperty rdf:about="#eaten_by">
         <rdfs:comment><![CDATA[]]></rdfs:comment>

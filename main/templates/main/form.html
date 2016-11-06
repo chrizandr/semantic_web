@@ -22,7 +22,7 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
                     <form name="sentMessage" id="contactForm" method="POST" action="" enctype="multipart/form-data" novalidate>{% csrf_token %}
-                        {% for ontoclass,prop_list in class_list %}
+                        {% for (ontoclass,prop_list) in class_list %}
                           <div class="row control-group">
                             <label for="{{ontoclass}}">  {{ ontoclass }} </label>
                             <input id="{{ontoclass}}" type="text" name="{{ontoclass}}"><br>
@@ -31,15 +31,15 @@
                                 <input id="_{{prop}}" type="text" name = "_{{prop}}">
                                 <br>
                               {% endfor %}
-                        </div>
-                        <hr>
-                        {% endfor %}
-                        <br>
-                        <div class="row">
-                            <div class="form-group col-xs-12">
-                                <button type="submit" value="Submit File" class="btn btn-success btn-lg">Upload</button>
-                            </div>
-                        </div>
+                          </div>
+                         <hr>
+                         {% endfor %}
+                         <br>
+                         <div class="row">
+                             <div class="form-group col-xs-12">
+                                 <button type="submit" value="Submit File" class="btn btn-success btn-lg">Upload</button>
+                             </div>
+                         </div>
                     </form>
                 </div>
             </div>
