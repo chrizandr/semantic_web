@@ -123,6 +123,7 @@ class DataPropView(View):
         return render(request, "main/register.html", {'form': form})
 
     def post(self,request):
+        print "enter"
         form = Data_type_form(request.POST)
         if form.is_valid():
             output_file = open("output.owl", 'w')
@@ -135,7 +136,7 @@ class DataPropView(View):
                 st += "&lt;/" + data_prop[i][2][0] + "&gt;<br><br>"
                 i += 1
             st += "</p>"
-            print st
+            print data_prop
             # output_file.close()
             return HttpResponse(st)
         else:
@@ -164,15 +165,16 @@ def get_data_properties(request):
     form = Data_type_form(request.POST or None,prop_object=data_prop)
     if form.is_valid():
         output_file=open("output.owl",'w')
-        i=0
         st="<p>"
         for (label,value) in form.data_values():
+            for i in range(0,len(data_prop)):
+                if data_prop[i][0]==label:
+                    break
             st+="&lt;"+str(data_prop[i][2][0])+"&gt;<br>"
             st+="&lt;"+label+" rdf:datatype= \""+data_prop[i][1][0]+"\" &gt; "+str(value)+" &lt;/"+label+"&gt;<br>"
             st+="&lt;/"+data_prop[i][2][0]+"&gt;<br><br>"
-            i+=1
         st+="</p>"
-        print st
+        print data_prop
         #output_file.close()
         return HttpResponse(st)
 
