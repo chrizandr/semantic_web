@@ -1,16 +1,32 @@
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render,redirect
-from django.contrib.auth import authenticate,login,logout
+#from django.contrib.auth import authenticate,login,logout
 from django.views.generic import View
 from ontospy import *
 from .forms import OwlForm, UserForm, Data_type_form
+from django.contrib.auth.decorators import login_required
+from django.template.context_processors import csrf
 import json
 import pdb
+
+##Tweaked login_required function so that it redirects to index.html on checking if user active fails
+def mylogin_required(function):
+        def wrap(request, *args, **kwargs):
+                #this check the session if userid key exist, if not it will redirect to login page
+                print "user id",request.user.id
+                if not (request.user.id):
+                        return HttpResponseRedirect("/login")
+                return function(request, *args, **kwargs)
+        wrap.__doc__=function.__doc__
+        wrap.__name__=function.__name__
+        return wrap
+
 
 def index(request):
     context=dict()
     return render(request,'main/index.html',context)
 
+@mylogin_required
 def home(request):
     context = dict()
     return render(request, 'main/home.html', context)
@@ -19,6 +35,7 @@ class OwlProcessor(View):
     form_class = OwlForm
     inputGraph = None
     filePath = "temp.owl"
+
     def post(self,request, *args, **kwargs):
         if request.POST["classes"]:
             try:
@@ -54,7 +71,6 @@ class OwlProcessor(View):
         elif request.POST["instances"]:
              print "Shit"
 
-
     def get(self,request, *args , **kwargs):
         self.template_name = 'main/upload.html'
         return self.construct_form(request,False,False)
@@ -72,34 +88,21 @@ class OwlProcessor(View):
             for chunk in f.chunks():
                 destination.write(chunk)
 
-class RegisterView(View):
+def register(request):
     template_name = "main/register.html"
-    form_class = UserForm
-
-    def get(self,request):
-        form = self.form_class(None)
-        return render(request, self.template_name, {"form":form})
-
-    def post(self,request):
-        form = self.form_class(None)
+    if request.method == 'POST':
+        form = UserForm(request.POST)
         if form.is_valid():
-            user = form.save(commit = False)
-            username = user.cleaned_data["username"]
-            password = user.cleaned_data["password"]
-            user.set_password(password)
-            user.save()
-
-            user = authenticate(username=username,password = password)
-            if user is not None:
-                if user.is_active:
-                    login(request,user)
-                    return redirect("main:home")
-        else:
-            print "Invalid"
-        return render(request, self.template_name, {"form": form})
+            form.save()
+            return render(request,"main/home.html",[])
+    else:
+        form = UserForm()
+    token = {}
+    token.update(csrf(request))
+    token['form'] = form
+    return render(request,template_name,token)
 
 class DataPropView(View):
-
     def get(self,request):
         filePath = "temp.owl"
         print filePath

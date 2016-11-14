@@ -6,6 +6,14 @@
                 <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
             </button>
             <a class="navbar-brand" href="#page-top">Semantic Web Forms</a>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="active"><a href="#">Home</a></li>
+              {{if not request.user.id}}
+              <li><a href="logout">Logout</a></li>
+              <li><a href="#"></a></li>
+              {{else}}
+              <li><a href="/login">Login</a></li>
+            </ul>
         </div>
     </div>
 </nav>
