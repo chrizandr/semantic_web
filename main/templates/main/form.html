@@ -21,7 +21,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
-                    <form name="sentMessage" id="contactForm" method="POST" action="" enctype="multipart/form-data" novalidate>{% csrf_token %}
+                    <form name="sentMessage" id="contactForm" method="POST" action="upload" enctype="multipart/form-data" novalidate>{% csrf_token %}
                         {% for (ontoclass,prop_list) in class_list %}
                           <div class="row control-group">
                             <label for="{{ontoclass}}">  {{ ontoclass }} </label>

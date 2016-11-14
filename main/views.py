@@ -170,9 +170,9 @@ def get_data_properties(request):
             for i in range(0,len(data_prop)):
                 if data_prop[i][0]==label:
                     break
-            st+="&lt;"+str(data_prop[i][2][0])+"&gt;<br>"
+            st+="&lt;rdf:Description rdf:about=\"#"+str(data_prop[i][2][0])+"\"&gt;<br>"
             st+="&lt;"+label+" rdf:datatype= \""+data_prop[i][1][0]+"\" &gt; "+str(value)+" &lt;/"+label+"&gt;<br>"
-            st+="&lt;/"+data_prop[i][2][0]+"&gt;<br><br>"
+            st+="&lt;/rdf:Description&gt;<br><br>"
         st+="</p>"
         print data_prop
         #output_file.close()
