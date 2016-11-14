@@ -1,59 +1,105 @@
+##########################################################################################
+## Semantic Web Form                                                                    ##
+## Authors : Chris Andrew, Santhoshini Reddy                                            ##
+## Email: chris.g14@iiits.in ; santhoshini.g14@iiits.in                                 ##
+## Github: https://github.com/chrizandr ; https://github.com/Sanny26                    ##
+###################################################################                     ##
+## Description: This project was developed as part of the SEFP course at IIIT Sri City  ##
+## All code is available for free usage for educational purposes                        ##
+## Authors do not authorize commercial use of the source code                           ##
+##########################################################################################
+
+# Script defines acts as a handler for a given url invocation
+
+################### Imports ##################
 from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render,redirect
-#from django.contrib.auth import authenticate,login,logout
 from django.views.generic import View
 from ontospy import *
 from .forms import OwlForm, UserForm, Data_type_form
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 from treebuilder import *
-import json,mimetypes
+import mimetypes, tempfile
+from models import Owl
+from os import remove
 import pdb
-
-##Tweaked login_required function so that it redirects to index.html on checking if user active fails
+##################### Source ####################
+#----------------------------------------------------------------------------------------
+# index : function generates the basic index page of the application
+def index(request):
+    context=dict()
+    return render(request,'main/index.html',context)
+#----------------------------------------------------------------------------------------
+# mylogin_required : Function used to check wether a given user is logged in or not.
+# In case no user is logged in, redirects to the login page
 def mylogin_required(function):
         def wrap(request, *args, **kwargs):
-                #this check the session if userid key exist, if not it will redirect to login page
-                print "user id",request.user.id
                 if not (request.user.id):
                         return HttpResponseRedirect("/login")
                 return function(request, *args, **kwargs)
         wrap.__doc__=function.__doc__
         wrap.__name__=function.__name__
         return wrap
-
-
-def index(request):
-    context=dict()
-    return render(request,'main/index.html',context)
-
+#----------------------------------------------------------------------------------------
+# home: function generates the homepage of a logged in user
 @mylogin_required
 def home(request):
     context = dict()
     return render(request, 'main/home.html', context)
 
+#----------------------------------------------------------------------------------------
+# register: function to register a new user, redirects to home
+def register(request):
+    template_name = "main/register.html"
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request,"main/home.html",[])
+    else:
+        form = UserForm()
+    token = {}
+    token.update(csrf(request))
+    token['form'] = form
+    return render(request,template_name,token)
+#----------------------------------------------------------------------------------------
+# OwlProcessor: Class to handle various processes related to OWL files
+#
+# OwlProcessor.post: Handles all post requests sent to the class. Flags decide the operation
+#
+# flag "classes" : Indicates that the post request is sending a file that needs to be parsed
+# and the class tree of the file needs to be returned.
+# flag "form" : Indicates that the post request is sending a list of classes that need to be
+# selected for form to be generated. Expects form in return.
 class OwlProcessor(View):
     form_class = OwlForm
     inputGraph = None
     filePath = "temp.owl"
-
     def post(self,request, *args, **kwargs):
+        #----------------------------------------------------
         if request.POST["classes"]:
-            try:
-                self.handle_uploaded_file(request.FILES["OWLfile"])
-            except KeyError:
+            if not(request.FILES):
                 return self.construct_form(request,True,False)
-            form = self.form_class(request.POST or None, request.FILES or None)
-            if form.is_valid():
-                try:
-                    self.inputGraph= Graph(self.filePath)
-                except:
-                    return self.construct_form(request,False,True)
-                tree=generateTree(self.inputGraph)
-                context = dict()
-                context['tree_object'] = tree
-                return render(request,"main/classes.html" , context)
-
+            f = request.FILES["OWLfile"]
+            fname = str(f.name)
+            temp = tempfile.NamedTemporaryFile(delete=False)
+            name = temp.name
+            for chunk in f.chunks():
+                temp.write(chunk)
+            temp.close()
+            try:
+                self.inputGraph= Graph(name)
+            except:
+                remove(name)
+                return self.construct_form(request,False,True)
+            remove(name)
+            owl = Owl()
+            tree=generateTree(self.inputGraph)
+            context = dict()
+            context['tree_object'] = tree
+            return render(request,"main/classes.html" , context)
+        #----------------------------------------------------
         elif request.POST["form"]:
              s = request.POST['class_names']
              filePath = "temp.owl"
@@ -69,13 +115,11 @@ class OwlProcessor(View):
              context = dict()
              context['class_list'] = name_list
              return render(request,'main/form.html',context)
-        elif request.POST["instances"]:
-             print "Shit"
-
+    #-----------------------------------------------------------------
     def get(self,request, *args , **kwargs):
         self.template_name = 'main/upload.html'
         return self.construct_form(request,False,False)
-
+    #-----------------------------------------------------------------
     def construct_form(self,request,form_flag,file_flag):
         form = self.form_class()
         context = dict()
@@ -83,26 +127,12 @@ class OwlProcessor(View):
         context['form_flag'] = form_flag
         context['file_flag'] = file_flag
         return render(request, "main/upload.html" , context)
-
+    #-----------------------------------------------------------------
     def handle_uploaded_file(self,f):
         with open('temp.owl', 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
-
-def register(request):
-    template_name = "main/register.html"
-    if request.method == 'POST':
-        form = UserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request,"main/home.html",[])
-    else:
-        form = UserForm()
-    token = {}
-    token.update(csrf(request))
-    token['form'] = form
-    return render(request,template_name,token)
-
+#----------------------------------------------------------------------------------------
 class DataPropView(View):
     def get(self,request):
         filePath = "temp.owl"
@@ -149,7 +179,8 @@ class DataPropView(View):
         else:
             return render(request, "main/dataprop.html", {'form': form})
 
-
+#----------------------------------------------------------------------------------------
+# get_data_properties: function generates a form from the selected
 def get_data_properties(request):
     filePath = "temp.owl"
     print filePath
@@ -190,34 +221,4 @@ def get_data_properties(request):
         response.write(st)
         #response['X-Sendfile'] =
         return response
-
     return render(request,"main/dataprop.html", {'form': form,'flag':flag})
-
-
-# def getClasses(request):
-#     if request.method == "POST":
-#         s = request.POST['class_names']
-#         print s
-#         filePath = "temp.owl"
-#         g = Graph(filePath)
-#         class_names = s.split(',')
-#         class_list = list()
-#         name_list = list()
-#         for ontoclass in g.classes:
-#         	if str(ontoclass.uri).split('#')[1] in class_names:
-#                     name = str(ontoclass.qname).split(':')[1]
-#                     props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
-#                     name_list.append((name,props))
-#         context = dict()
-#         context['class_list'] = name_list
-#         if request.method == "POST":
-#             output = str()
-#             classes = dict()
-#             properties = dict()
-#             for entry in request.POST:
-#                 value = str(request.POST[entry])
-#                 if entry[0]=='_':
-#                     properties[entry[1:]] = value
-#                 else:
-#                     classes[entry] = value
-#         return render(request,'main/form.html',context)
