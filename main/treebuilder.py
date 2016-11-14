@@ -30,5 +30,4 @@ def generateTree(graph):
             class_id+=1
             classlist.append(each_child)
         class_id+=1
-    json.dumps(classlist)
     return classlist

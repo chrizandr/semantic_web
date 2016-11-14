@@ -7,7 +7,7 @@ from .forms import OwlForm, UserForm, Data_type_form
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 from treebuilder import *
-import json
+import json,mimetypes
 import pdb
 
 ##Tweaked login_required function so that it redirects to index.html on checking if user active fails
@@ -124,7 +124,10 @@ class DataPropView(View):
             if len(lis) > 0:
                 data_prop.append(lis)
         form = Data_type_form(request.POST or None, prop_object=data_prop)
-        return render(request, "main/register.html", {'form': form})
+        flag=0
+        if len(data_prop)==0:
+            flag=-1
+        return render(request, "main/dataprop.html", {'form': form,'flag': flag})
 
     def post(self,request):
         print "enter"
@@ -144,7 +147,7 @@ class DataPropView(View):
             # output_file.close()
             return HttpResponse(st)
         else:
-            return render(request, "main/register.html", {'form': form})
+            return render(request, "main/dataprop.html", {'form': form})
 
 
 def get_data_properties(request):
@@ -167,7 +170,11 @@ def get_data_properties(request):
         if len(lis)>0:
             data_prop.append(lis)
     form = Data_type_form(request.POST or None,prop_object=data_prop)
+    flag=0
+    if len(data_prop)==0:
+        flag=-1
     if form.is_valid():
+        flag=1
         output_file=open("output.owl",'w')
         st="<p>"
         for (label,value) in form.data_values():
@@ -178,11 +185,13 @@ def get_data_properties(request):
             st+="&lt;"+label+" rdf:datatype= \""+data_prop[i][1][0]+"\" &gt; "+str(value)+" &lt;/"+label+"&gt;<br>"
             st+="&lt;/rdf:Description&gt;<br><br>"
         st+="</p>"
-        print data_prop
-        #output_file.close()
-        return HttpResponse(st)
+        response = HttpResponse('text/xml; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="success.txt"'
+        response.write(st)
+        #response['X-Sendfile'] =
+        return response
 
-    return render(request,"main/register.html", {'form': form})
+    return render(request,"main/dataprop.html", {'form': form,'flag':flag})
 
 
 # def getClasses(request):

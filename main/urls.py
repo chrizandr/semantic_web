@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^test/$', views.get_data_properties, name='test'),
     # Main link to upload and process OWL file
     url(r'^upload/$', views.mylogin_required(views.OwlProcessor.as_view()), name='upload'),
+    url(r'^propertyform/$', views.mylogin_required(views.get_data_properties), name='upload'),
     #Urls for login and singup
     url(r'^register/$', views.register, name='register'),
 ]
