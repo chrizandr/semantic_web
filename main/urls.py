@@ -48,5 +48,7 @@ urlpatterns = [
     # Main link to upload and process OWL file
     url(r'^upload/$', views.mylogin_required(views.OwlProcessor.as_view()), name='upload'),
     # Link to get the form after processing the owl file
-    url(r'^propertyform/$', views.mylogin_required(views.get_data_properties), name='upload'),
+    url(r'^propertyform/$', views.mylogin_required(views.get_data_properties), name='propertyform'),
+    #Link to display all the graph files that the user has stored in the database
+    url(r'^displayfiles/$',views.get_graph,name="displayfiles")
 ]

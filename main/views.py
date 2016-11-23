@@ -13,7 +13,7 @@
 
 ################### Imports ##################
 import cPickle as pickle
-import pdb
+import pdb,time
 import tempfile
 from os import remove
 
@@ -30,6 +30,10 @@ from .forms import OwlForm, UserForm, Data_type_form
 
 
 ##################### Source ####################
+RDF_DECLARATION="<?xml version=\"1.0\"?><rdf:RDF\nxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\nxmlns:si=\"http://www.w3schools.com/rdf/\">"
+RDF_ENDING="</rdf:RDF>"
+
+
 # ----------------------------------------------------------------------------------------
 # index : function generates the basic index page of the application
 def index(request):
@@ -67,13 +71,25 @@ def register(request):
         form = UserForm(request.POST)
         if form.is_valid():
             form.save()
-            return render(request, "main/home.html", [])
+            return render(request, "main/home.html", {})
     else:
         form = UserForm()
     token = {}
     token.update(csrf(request))
     token['form'] = form
     return render(request, template_name, token)
+
+@mylogin_required
+def get_graph(request):
+    template_name="main/display_files.html"
+    graph_models=Owl.objects.filter(userid=request.user.id)
+    graph_data_list=list()
+    timestamp_list=list()
+    for i in graph_models.all():
+        graph_data_list.append({'name':str(i.fname),'timestamp':str(i.timestamp).split('.')[0]})
+        timestamp_list.append(str(i.timestamp))
+    print graph_data_list
+    return render(request,template_name,{'graph_list':graph_data_list,'time_list':timestamp_list})
 
 
 # ----------------------------------------------------------------------------------------
@@ -236,19 +252,19 @@ def get_data_properties(request):
         flag = -1
     if form.is_valid():
         flag = 1
-        output_file = open("output.owl", 'w')
-        st = "<p>"
+        st=RDF_DECLARATION
         for (label, value) in form.data_values():
             for i in range(0, len(data_prop)):
                 if data_prop[i][0] == label:
                     break
-            st += "&lt;rdf:Description rdf:about=\"#" + str(data_prop[i][2][0]) + "\"&gt;<br>"
-            st += "&lt;" + label + " rdf:datatype= \"" + data_prop[i][1][0] + "\" &gt; " + str(
-                value) + " &lt;/" + label + "&gt;<br>"
-            st += "&lt;/rdf:Description&gt;<br><br>"
-        st += "</p>"
-        response = HttpResponse('text/xml; charset=utf-8')
-        response['Content-Disposition'] = 'attachment; filename="success.txt"'
+            st += "<rdf:Description rdf:about=\"#" + str(data_prop[i][2][0]) + "\">"
+            st += "<" + label + " rdf:datatype= \"" + data_prop[i][1][0] + "\" > " + str(
+                value) + " </" + label + ">"
+            st += "</rdf:Description>"
+        st += RDF_ENDING
+        print time.strftime('%H%M%S')
+        response = HttpResponse()
+        response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
         response.write(st)
         # response['X-Sendfile'] =
         return response
