@@ -23,11 +23,13 @@ from django.template.context_processors import csrf
 from django.views.generic import View
 from ontospy import *
 from django.core.files import File
+from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from models import Owl
 from treebuilder import *
 from .forms import OwlForm, UserForm, Data_type_form
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 
 ##################### Source ####################
@@ -99,6 +101,29 @@ def get_graph(request):
         graphs = paginator.page(paginator.num_pages)
     return render(request,template_name,{'graphs':graphs,'count': graph_models.count()})
 
+@mylogin_required
+def create_class(request,**kwargs):
+    fileid=kwargs['fileid']
+    owlfile=Owl.objects.filter(id=fileid,userid=request.user.id)[0]
+    print str(owlfile.OWLfile.name)
+    g=pickle.load(open(str(owlfile.OWLfile.name),"rb"))
+    tree = generateTree(g)
+    context = dict()
+    context['tree_object'] = tree
+    if request.POST:
+        s = request.POST['class_names']
+        class_names = s.split(',')
+        class_list = list()
+        name_list = list()
+        for ontoclass in g.classes:
+            if str(ontoclass.uri).split('#')[1] in class_names:
+                name = str(ontoclass.qname).split(':')[1]
+                props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
+                name_list.append((name, props))
+        context = dict()
+        context['class_list'] = name_list
+        return render(request, 'main/form.html', context)
+    return render(request,"main/classes.html", context)
 
 # ----------------------------------------------------------------------------------------
 # OwlProcessor: Class to handle various processes related to OWL files
@@ -143,11 +168,13 @@ class OwlProcessor(View):
             owl.fname = fname
             owl.save()
             os.remove(name)
-            tree = generateTree(self.inputGraph)
-            context = dict()
-            context['tree_object'] = tree
-            return render(request, "main/classes.html", context)
-        # ----------------------------------------------------
+            #tree = generateTree(self.inputGraph)
+            #context = dict()
+            #context['tree_object'] = tree
+            print '$$$$$$$$$$$$$$$$$$$$$$$$$$$',owl.id
+            #return create_class(request,owl.id)
+            return HttpResponseRedirect( reverse('classes',kwargs={'fileid':owl.id}))
+        ''' ----------------------------------------------------
         elif request.POST["form"]:
             s = request.POST['class_names']
             filePath = "temp.owl"
@@ -162,7 +189,7 @@ class OwlProcessor(View):
                     name_list.append((name, props))
             context = dict()
             context['class_list'] = name_list
-            return render(request, 'main/form.html', context)
+            return render(request, 'main/form.html', context)'''
 
     # -----------------------------------------------------------------
     def get(self, request, *args, **kwargs):

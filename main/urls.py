@@ -50,5 +50,7 @@ urlpatterns = [
     # Link to get the form after processing the owl file
     url(r'^propertyform/$', views.mylogin_required(views.get_data_properties), name='propertyform'),
     #Link to display all the graph files that the user has stored in the database
-    url(r'^displayfiles/$',views.get_graph,name="displayfiles")
+    url(r'^displayfiles/$',views.get_graph,name="displayfiles"),
+
+    url(r'^classes/(?P<fileid>\d+)$',views.create_class,name="classes")
 ]
