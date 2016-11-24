@@ -190,7 +190,6 @@ class OwlProcessor(View):
             context = dict()
             context['class_list'] = name_list
             return render(request, 'main/form.html', context)'''
-            print "Hello"
     # -----------------------------------------------------------------
     def get(self, request, *args, **kwargs):
         self.template_name = 'main/upload.html'
