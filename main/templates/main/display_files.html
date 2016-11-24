@@ -23,14 +23,26 @@
                   <br><br>
                 </div>
                 <div class="col-lg-8 col-lg-offset-2">
+                  {% if count > 0 %}
                   <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>File Name</th>
+                        <th>Timestamp</th>
+                        <th></th>
+                        <th></th>
+                      </tr>
+                    </thead>
                   <tbody>
                     {% for i in graphs %}
                     <tr>
                       <td>{{i.fname}}</td>
                       <td>{{i.timestamp}}</td>
-                      <td><a href="?name={{i.timestamp}}"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
-                      <td><a href="#"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+                      <td><button class="btn btn-link" type="submit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button></td>
+                      <form name="deleteGraph" method="POST" action="">
+                      <input type="hidden" value="{{i.id}}" name="fileid"></input>
+                        <td><button class="btn btn-link" type="submit"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                    </form>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -55,6 +67,9 @@
                         <li class="disabled"><span>&raquo;</span></li>
                       {% endif %}
                     </ul>
+                  {% endif %}
+                  {% else %}
+                  <p>You haven't uploaded any graph instances</p>
                   {% endif %}
                 </div>
             </div>

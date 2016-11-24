@@ -84,13 +84,10 @@ def register(request):
 def get_graph(request):
     template_name="main/display_files.html"
     graph_models=Owl.objects.filter(userid=request.user.id)
-    name = request.POST.get('name',None)
-    print "----------------------------"
-    print name
     if request.method == 'POST':
         print "enter"
-        name = request.POST.get('name',None)
-        graph_models.filter(timestamp=name).delete()
+        name = request.POST.get('fileid',None)
+        Owl.objects.filter(id=name).delete()
 
     paginator = Paginator(graph_models, 10)
     page = request.GET.get('page', 1)
@@ -100,7 +97,7 @@ def get_graph(request):
         graphs = paginator.page(1)
     except EmptyPage:
         graphs = paginator.page(paginator.num_pages)
-    return render(request,template_name,{'graphs':graphs})
+    return render(request,template_name,{'graphs':graphs,'count': graph_models.count()})
 
 
 # ----------------------------------------------------------------------------------------
