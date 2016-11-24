@@ -27,6 +27,7 @@ from django.core.files import File
 from models import Owl
 from treebuilder import *
 from .forms import OwlForm, UserForm, Data_type_form
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 ##################### Source ####################
@@ -83,13 +84,23 @@ def register(request):
 def get_graph(request):
     template_name="main/display_files.html"
     graph_models=Owl.objects.filter(userid=request.user.id)
-    graph_data_list=list()
-    timestamp_list=list()
-    for i in graph_models.all():
-        graph_data_list.append({'name':str(i.fname),'timestamp':str(i.timestamp).split('.')[0]})
-        timestamp_list.append(str(i.timestamp))
-    print graph_data_list
-    return render(request,template_name,{'graph_list':graph_data_list,'time_list':timestamp_list})
+    name = request.POST.get('name',None)
+    print "----------------------------"
+    print name
+    if request.method == 'POST':
+        print "enter"
+        name = request.POST.get('name',None)
+        graph_models.filter(timestamp=name).delete()
+
+    paginator = Paginator(graph_models, 10)
+    page = request.GET.get('page', 1)
+    try:
+        graphs = paginator.page(page)
+    except PageNotAnInteger:
+        graphs = paginator.page(1)
+    except EmptyPage:
+        graphs = paginator.page(paginator.num_pages)
+    return render(request,template_name,{'graphs':graphs})
 
 
 # ----------------------------------------------------------------------------------------
