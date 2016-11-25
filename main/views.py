@@ -101,27 +101,35 @@ def get_graph(request):
         graphs = paginator.page(paginator.num_pages)
     return render(request,template_name,{'graphs':graphs,'count': graph_models.count()})
 
+
+@mylogin_required
+def submitted_classes():
+    return HttpResponse("sbdbhjds")
+
 @mylogin_required
 def create_class(request,**kwargs):
     fileid=kwargs['fileid']
     owlfile=Owl.objects.filter(id=fileid,userid=request.user.id)[0]
-    print str(owlfile.OWLfile.name)
     g=pickle.load(open(str(owlfile.OWLfile.name),"rb"))
     tree = generateTree(g)
     context = dict()
     context['tree_object'] = tree
+    context['fileid']=fileid
     if request.POST:
         s = request.POST['class_names']
         class_names = s.split(',')
-        class_list = list()
         name_list = list()
+        prop_list= dict()
         for ontoclass in g.classes:
             if str(ontoclass.uri).split('#')[1] in class_names:
                 name = str(ontoclass.qname).split(':')[1]
                 props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
-                name_list.append((name, props))
+                prop_list[name]=props
+                name_list.append(name)
         context = dict()
         context['class_list'] = name_list
+        context['prop_list'] = prop_list
+        print context
         return render(request, 'main/form.html', context)
     return render(request,"main/classes.html", context)
 
@@ -168,11 +176,6 @@ class OwlProcessor(View):
             owl.fname = fname
             owl.save()
             os.remove(name)
-            #tree = generateTree(self.inputGraph)
-            #context = dict()
-            #context['tree_object'] = tree
-            print '$$$$$$$$$$$$$$$$$$$$$$$$$$$',owl.id
-            #return create_class(request,owl.id)
             return HttpResponseRedirect( reverse('classes',kwargs={'fileid':owl.id}))
         ''' ----------------------------------------------------
         elif request.POST["form"]:
@@ -209,54 +212,6 @@ class OwlProcessor(View):
         with open('temp.owl', 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
-
-
-# # ----------------------------------------------------------------------------------------
-# class DataPropView(View):
-#     def get(self, request):
-#         filePath = "temp.owl"
-#         print filePath
-#         graph = Graph(filePath)
-#         data_prop = list()
-#         for each in graph.properties:
-#             lis = list()
-#             if str(each.rdftype).split('#')[1] == 'DatatypeProperty':
-#                 lis.append(str(each.locale))
-#                 r_list = list()
-#                 for property_range in each.ranges:
-#                     r_list.append(str(property_range).split('#')[1])
-#                 d_list = list()
-#                 for domain in each.domains:
-#                     d_list.append(str(domain).split('#')[1].split('*')[0])
-#                 lis.append(r_list)
-#                 lis.append(d_list)
-#             if len(lis) > 0:
-#                 data_prop.append(lis)
-#         form = Data_type_form(request.POST or None, prop_object=data_prop)
-#         flag = 0
-#         if len(data_prop) == 0:
-#             flag = -1
-#         return render(request, "main/dataprop.html", {'form': form, 'flag': flag})
-#
-#     def post(self, request):
-#         print "enter"
-#         form = Data_type_form(request.POST)
-#         if form.is_valid():
-#             output_file = open("output.owl", 'w')
-#             i = 0
-#             st = "<p>"
-#             for (label, value) in form.data_values():
-#                 st += "&lt;" + str(data_prop[i][2][0]) + "&gt;<br>"
-#                 st += "&lt;" + label + " rdf:datatype= \"" + data_prop[i][1][0] + "\" &gt; " + str(
-#                     value) + " &lt;/" + label + "&gt;<br>"
-#                 st += "&lt;/" + data_prop[i][2][0] + "&gt;<br><br>"
-#                 i += 1
-#             st += "</p>"
-#             print data_prop
-#             # output_file.close()
-#             return HttpResponse(st)
-#         else:
-#             return render(request, "main/dataprop.html", {'form': form})
 
 
 # ----------------------------------------------------------------------------------------

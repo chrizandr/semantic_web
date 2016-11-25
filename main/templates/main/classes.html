@@ -11,7 +11,7 @@
             var dataAdapter = new $.jqx.dataAdapter(source);
             dataAdapter.dataBind();
             var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label'}]);
-            $('#jqxWidget').jqxTree({ source: records, width: '300px',checkboxes:true});
+            $('#jqxWidget').jqxTree({ source: records, width: '300px',checkboxes:true, hasThreeStates: true});
             $('#jqxWidget').css('visibility', 'visible');
             $("#jqxbutton").jqxButton({theme: 'energyblue',width: 200,height: 30  });
             $('#jqxbutton').click(function () {
@@ -23,7 +23,7 @@
                   }
                   console.log(str);
 
-                  var url = '/classes/';
+                  var url = '/classes/{{fileid}}';
                   var form = $('<form action="' + url + '" method="post">' +
                     '<input type="text" name="class_names" value="' + str + '" />' +
                     '<input type="hidden" name="form" value="true"/>' +

@@ -12,6 +12,10 @@
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 
+    <style>
+    .block label { display: inline-block; width: 140px; text-align: right; }
+    </style>
+
 </head>
 
 <body id="page-top" class="index">
@@ -21,15 +25,19 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
-                    <form name="sentMessage" id="contactForm" method="POST" action="upload" enctype="multipart/form-data" novalidate>{% csrf_token %}
-                        {% for (ontoclass,prop_list) in class_list %}
+                    <form name="cls_and_obj" id="opForm" method="POST" action="/classes/{{fileid}}" enctype="multipart/form-data" novalidate>{% csrf_token %}
+                        {% for ontoclass in class_list %}
                           <div class="row control-group">
-                            <label for="{{ontoclass}}">  {{ ontoclass }} </label>
+                            <div class="block">
+                            <label for="{{ontoclass}}">  {{ ontoclass }} </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <input id="{{ontoclass}}" type="text" name="{{ontoclass}}"><br>
-                              {% for prop in prop_list %}
+                          </div>
+                              {% for prop in prop_list.ontoclass %}
+                                <div class="block">
                                 <label for= "_{{prop}}" > {{prop}} </label>
                                 <input id="_{{prop}}" type="text" name = "_{{prop}}">
                                 <br>
+                              </div>
                               {% endfor %}
                           </div>
                          <hr>
@@ -37,7 +45,7 @@
                          <br>
                          <div class="row">
                              <div class="form-group col-xs-12">
-                                 <button type="submit" value="Submit File" class="btn btn-success btn-lg">Upload</button>
+                                 <button type="submit" value="Submit File" class="btn btn-success btn-lg">Generate Instances</button>
                              </div>
                          </div>
                     </form>
