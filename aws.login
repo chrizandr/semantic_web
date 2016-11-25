@@ -1,1 +1,1 @@
-sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib nginx
+ssh -i "semanticwebforms.pem" ubuntu@ec2-54-169-106-157.ap-southeast-1.compute.amazonaws.com
