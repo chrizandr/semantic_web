@@ -49,43 +49,51 @@ class UserForm(UserCreationForm):
         return user
 #----------------------------------------------------------------------------------------
 # UserForm: Class to generate the forms for various classes and properties dynamically
-# Uses the "prop_object" dictionary to construct forms dynamically for vaiour input types
+# Uses the "ddprop_object" dictionary to construct forms dynamically for vaiour input types
 # Support input types of the form: integer, string, boolean, decimal, float, double, duration, dateTime, time, date, anyURI
 class Data_type_form(forms.Form):
     #-----------------------------------------------------------------
     def __init__(self, *args, **kwargs):
-        prop_object = kwargs.pop('prop_object')
+        class_list = kwargs.pop('class_names')
+        dprop_object = kwargs.pop('dprop_object')
+        oprop_object = kwargs.pop('oprop_object')
         super(Data_type_form, self).__init__(*args, **kwargs)
-        print prop_object
-        for i, d_type in enumerate(prop_object):
-            print d_type
-            r_list=d_type[1]
-            d_list=d_type[2]
-            for each in r_list:
-                if each=='integer':
-                    self.fields['custom_%s' % i] = forms.IntegerField(label=d_type[0])
-                elif each=='string':
-                    self.fields['custom_%s' % i] = forms.CharField(label=d_type[0])
-                elif each=='boolean':
-                    self.fields['custom_%s' % i] = forms.BooleanField(label=d_type[0])
-                elif each=='decimal':
-                    self.fields['custom_%s' % i] = forms.DecimalField(label=d_type[0])
-                elif each=='float':
-                    self.fields['custom_%s' % i] = forms.FloatField(label=d_type[0])
-                elif each=='double':
-                    self.fields['custom_%s' % i] = forms.DecimalField(label=d_type[0])
-                elif each=='duration':
-                    self.fields['custom_%s' % i] = forms.DurationField(label=d_type[0])
-                elif each=='dateTime':
-                    self.fields['custom_%s' % i] = forms.DateTimeField(label=d_type[0], widget = forms.TextInput(attrs={'class': 'datepicker'}))
-                elif each=='time':
-                    self.fields['custom_%s' % i] = forms.TimeField(label=d_type[0])
-                elif each=='date':
-                    self.fields['custom_%s' % i] = forms.DateField(label=d_type[0])
-                elif each=='anyURI':
-                    self.fields['custom_%s' % i] = forms.URLField(label=d_type[0])
+        count=0
+        for ontoclass in class_list:
+            self.fields['custom_q%s' % count ] = forms.CharField(label="break",help_text="new_set")
+            self.fields['c_%s' % ontoclass] = forms.CharField(label=ontoclass,help_text="Class",widget = forms.TextInput(attrs={ 'placeholder': 'Class'}))
+            count+=1
+            for prop in oprop_object[ontoclass]:
+                self.fields['o_%s' % prop[0]] = forms.CharField(label=prop[0],help_text="Object Property",widget = forms.TextInput(attrs={ 'placeholder': 'Object Property'}))
+                count+=1
+            for prop in dprop_object[ontoclass]:
+                prop_range=prop[1]
+                prop_name=prop[0]
+                if prop_range=='integer':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.IntegerField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='string':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.CharField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='boolean':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.BooleanField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='decimal':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.DecimalField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='float':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.FloatField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='double':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.DecimalField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='duration':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.DurationField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='dateTime':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.DateTimeField(label=prop_name,help_text="Data Property", widget = forms.TextInput(attrs={'class': 'datepicker','placeholder': 'Data Property'}))
+                elif prop_range=='time':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.TimeField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='date':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.DateField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                elif prop_range=='anyURI':
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.URLField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
                 else:
-                    self.fields['custom_%s' % i] = forms.CharField(label=d_type[0])
+                    self.fields['d_%s_%s' % (prop_name , prop_range) ] = forms.CharField(label=prop_name,help_text="Data Property",widget = forms.TextInput(attrs={ 'placeholder': 'Data Property'}))
+                count+=1
     #-----------------------------------------------------------------
     def data_values(self):
         for name,value in self.cleaned_data.items():

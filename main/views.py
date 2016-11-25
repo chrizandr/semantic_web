@@ -74,7 +74,7 @@ def register(request):
         form = UserForm(request.POST)
         if form.is_valid():
             form.save()
-            return render(request, "main/home.html", {})
+            return render(request, "main/register_after.html", {})
     else:
         form = UserForm()
     token = {}
@@ -106,6 +106,29 @@ def get_graph(request):
 def submitted_classes():
     return HttpResponse("sbdbhjds")
 
+def get_property_set(ontoproperty):
+    propset=list()
+    propname=str(ontoproperty.locale)
+    if str(ontoproperty.rdftype).split('#')[1] == 'DatatypeProperty':
+        #r_list = list()
+        #for property_range in ontoproperty.ranges:
+        #    r_list.append(str(property_range).split('#')[1])
+        datatype=""
+        if len(ontoproperty.ranges)>0:
+            datatype =  str(ontoproperty.ranges[0]).split('#')[1]
+        propset.append(1)
+        propset.append((propname,datatype))
+    elif str(ontoproperty.rdftype).split('#')[1] == 'ObjectProperty':
+        propset.append(2)
+        propset.append((propname))
+    return propset
+
+
+def generate_file(request):
+    st=""
+    return ""
+
+
 @mylogin_required
 def create_class(request,**kwargs):
     fileid=kwargs['fileid']
@@ -115,22 +138,43 @@ def create_class(request,**kwargs):
     context = dict()
     context['tree_object'] = tree
     context['fileid']=fileid
-    if request.POST:
+    if request.method=='POST':
         s = request.POST['class_names']
         class_names = s.split(',')
         name_list = list()
-        prop_list= dict()
+        obj_prop_list= dict()
+        data_prop_list= dict()
         for ontoclass in g.classes:
             if str(ontoclass.uri).split('#')[1] in class_names:
                 name = str(ontoclass.qname).split(':')[1]
-                props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
-                prop_list[name]=props
+                tdlist=set()
+                tolist=set()
+                for prop in ontoclass.domain_of:
+                        pset=get_property_set(prop)
+                        dproperty=pset[1]
+                        if pset[0]==1:
+                            tdlist.add(dproperty)
+                        elif pset[0]==2:
+                            tolist.add(dproperty)
+                for prop in ontoclass.range_of:
+                        pset=get_property_set(prop)
+                        dproperty=pset[1]
+                        if pset[0]==1:
+                            tdlist.add(dproperty)
+                        elif pset[0]==2:
+                            tolist.add(dproperty)
                 name_list.append(name)
-        context = dict()
-        context['class_list'] = name_list
-        context['prop_list'] = prop_list
-        print context
+                obj_prop_list[name]=tolist
+                data_prop_list[name]=tdlist
+        form = Data_type_form(request.POST or None, class_names=name_list, oprop_object=obj_prop_list, dprop_object=data_prop_list)
+        context['form'] = form
         return render(request, 'main/form.html', context)
+        '''else:
+             owl_content = generate_file(request.POST)
+             response = HttpResponse()
+             response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
+             response.write(st)
+             return response'''
     return render(request,"main/classes.html", context)
 
 # ----------------------------------------------------------------------------------------
@@ -160,7 +204,7 @@ class OwlProcessor(View):
                 temp.write(chunk)
             temp.close()
             try:
-                self.inputGraph = Graph(name)
+                self.inputGraph = Ontospy(name)
             except:
                 remove(name)
                 return self.construct_form(request, False, True)
@@ -177,22 +221,7 @@ class OwlProcessor(View):
             owl.save()
             os.remove(name)
             return HttpResponseRedirect( reverse('classes',kwargs={'fileid':owl.id}))
-        ''' ----------------------------------------------------
-        elif request.POST["form"]:
-            s = request.POST['class_names']
-            filePath = "temp.owl"
-            g = Graph(filePath)
-            class_names = s.split(',')
-            class_list = list()
-            name_list = list()
-            for ontoclass in g.classes:
-                if str(ontoclass.uri).split('#')[1] in class_names:
-                    name = str(ontoclass.qname).split(':')[1]
-                    props = [str(prop.qname).split(':')[1] for prop in ontoclass.domain_of]
-                    name_list.append((name, props))
-            context = dict()
-            context['class_list'] = name_list
-            return render(request, 'main/form.html', context)'''
+
     # -----------------------------------------------------------------
     def get(self, request, *args, **kwargs):
         self.template_name = 'main/upload.html'
@@ -212,49 +241,3 @@ class OwlProcessor(View):
         with open('temp.owl', 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
-
-
-# ----------------------------------------------------------------------------------------
-# get_data_properties: function generates a form from the selected
-def get_data_properties(request):
-    entry = Owl.objects.order_by("-timestamp").filter(userid=request.user.id)[0]
-    f = open(entry.OWLfile.name, 'r')
-    graph = pickle.load(f)
-    data_prop = list()
-    for each in graph.properties:
-        lis = list()
-        if str(each.rdftype).split('#')[1] == 'DatatypeProperty':
-            lis.append(str(each.locale))
-            r_list = list()
-            for property_range in each.ranges:
-                r_list.append(str(property_range).split('#')[1])
-            d_list = list()
-            for domain in each.domains:
-                d_list.append(str(domain).split('#')[1].split('*')[0])
-            lis.append(r_list)
-            lis.append(d_list)
-        if len(lis) > 0:
-            data_prop.append(lis)
-    form = Data_type_form(request.POST or None, prop_object=data_prop)
-    flag = 0
-    if len(data_prop) == 0:
-        flag = -1
-    if form.is_valid():
-        flag = 1
-        st=RDF_DECLARATION
-        for (label, value) in form.data_values():
-            for i in range(0, len(data_prop)):
-                if data_prop[i][0] == label:
-                    break
-            st += "<rdf:Description rdf:about=\"#" + str(data_prop[i][2][0]) + "\">"
-            st += "<" + label + " rdf:datatype= \"" + data_prop[i][1][0] + "\" > " + str(
-                value) + " </" + label + ">"
-            st += "</rdf:Description>"
-        st += RDF_ENDING
-        print time.strftime('%H%M%S')
-        response = HttpResponse()
-        response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
-        response.write(st)
-        # response['X-Sendfile'] =
-        return response
-    return render(request, "main/dataprop.html", {'form': form, 'flag': flag})
