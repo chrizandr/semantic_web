@@ -1,0 +1,83 @@
+#########################################################################################
+# Semantic Web Form                                                                    ##
+# Authors : Chris Andrew, Santhoshini Reddy                                            ##
+# Email: chris.g14@iiits.in ; santhoshini.g14@iiits.in                                 ##
+# Github: https://github.com/chrizandr ; https://github.com/Sanny26                    ##
+##################################################################                     ##
+# Description: This project was developed as part of the SEFP course at IIIT Sri City  ##
+# All code is available for free usage for educational purposes                        ##
+# Authors do not authorize commercial use of the source code                           ##
+#########################################################################################
+
+#################### Models ####################
+
+OWLForm: Class to generate the form to upload an OWL file
+It uses the Owl model from the "models" file.
+
+UserForm: Class to generate the form registering a new user
+It uses the in built User model from django.contrib.auth.models
+
+UserForm: Class to generate the forms for various classes and properties dynamically
+Uses the "ddprop_object" dictionary to construct forms dynamically for vaiour input types
+Support input types of the form: integer, string, boolean, decimal, float, double, duration, dateTime, time, date, anyURI
+
+#################### Functions ####################
+
+create_dict : funciton to create a dictionary of classes
+
+getAllChildren : funciton to decide which class is a child
+
+generateTree : funciton to generate a final tree of classes and properties
+
+get_file: Function generates the OWL file from the POST dictionary passed to the Function
+The tags are organised based on the type of property or Class
+
+#################### Views ####################
+
+mylogin_required : It is an authentication function used to check whether a user is logged in or not
+Uses the request object to check the user attribute. If the attribute is null (no user logged in) then redirects to log in page
+Any function can be made into an authenticated function by using the "@mylogin_required" override.
+
+index : Function generates the basic index page of the application.
+The index page displays ad introduction about the website/project
+Users are given the option to LogIn or SignUp. The page does not perform any functions other than linking the login and registration pages
+There is no need to be logged in to access the index page.
+
+register: Generates the page for a new user to register.
+Required fields for registration are: <username> <email> <password> [<confirm password>]
+Password field has certain restrictions that are displayed on the registration page
+If the user registration is correct it redirects the user to a confirmation page.
+Does not log in the user after registration process is complete. User must log in after registration.
+
+OwlProcessor: Class to handle various processes related to OWL files uploading and storing
+GET request is handled by the get function, returns a form to allow a user to upload a file.
+Once form is submitted a PSOT request is issued and the post function is invoked to handle it.
+The POST function creates a temporary file where the contents of the uploaded file are copied.
+The file is parsed and a Graph object is created for the Ontology.
+The object is stored in the RAM, a screenshot of the state where the object is stored is taken.
+The screenshot of the objec is stored in another file. This file is linked to the database entry for the upload.
+Parsing the file takes a large amount of time, therefore this method was used to minimise the latency
+Stored images can be retrieved and loaded back into python objects almost instantaneously.
+
+get_graph: Function handles the main homepage of a logged in user.
+The current files that the user has uploaded to the server are displayed in a list.
+The files can be reused to generate new instances using classes from the old OWL file.
+The list of files is pagenated to prevent cluttering and overcrowding.
+Entries are limited to 10 per page.
+Buttons are provided to reuse and delete a previous Graph.
+
+get_property_set: Function used for getting the object properties and the data properties for a given class.
+Both the properties are in lsits that are appended to a parent list and returned.
+
+FormProcess: Class based view used to generate a tree for the classes present in an OWL file.
+The generated tree object is hierchically arranged as parents and children classes.
+Selecting a parent would select it consecutive children as well.
+The tree was generated using the jqxTree widget for javascript.
+The tree generation is called via a GET request which is handled by the get functions
+Class trees are selected and communicated using a POST request. These are handled by the post function.
+The screenshoted RAM images of the Graph object are loaded directly so that they may be used without re-parsing the OWL file.
+
+generate_file: Function used for viewing and downloading the generated OWL instance file.
+The file is displayed in a textbox for the user to be able to edit the contents.
+The newly updated content is downloaded when the download button is clicked. The name of the file is in the format "<user.id>u<timestamp>"
+Function cannot be accessed using a get method. An HTTP 404 error is raised in case of a get request

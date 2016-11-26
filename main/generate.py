@@ -46,7 +46,8 @@ data_val = '<owlx:DataValue owlx:datatype="&xsd;%s">%s</owlx:DataValue>'
 end_data_prop = '</owlx:DataPropertyValue>'
 
 ##################### Source ####################
-
+# get_file: Function generates the OWL file from the POST dictionary passed to the Function
+# The tags are organised based on the type of property or Class
 def get_file(obj):
     del obj['csrfmiddlewaretoken']
     finalstring = ''
