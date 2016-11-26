@@ -117,13 +117,6 @@ def get_property_set(ontoproperty):
         propset.append((propname))
     return propset
 
-    '''else:
-         owl_content = generate_file(request.POST)
-         response = HttpResponse()
-         response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
-         response.write(st)
-         return response'''
-
 def generate_file(request):
     if request.method == "POST":
         if request.POST.get('code', False):
@@ -209,7 +202,7 @@ class OwlProcessor(View):
                 temp.write(chunk)
             temp.close()
             try:
-                self.inputGraph = Graph(name)
+                self.inputGraph = Ontospy(name)
             except:
                 remove(name)
                 return self.construct_form(request, False, True)
