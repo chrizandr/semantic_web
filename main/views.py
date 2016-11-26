@@ -175,7 +175,7 @@ def get_graph(request):
 
 # ----------------------------------------------------------------------------------------
 # get_property_set: Function used for getting the object properties and the data properties for a given class.
-# Both the properties are in lsits that are appended to a parent list and returned.
+# Both the properties are in lists that are appended to a parent list and returned.
 def get_property_set(ontoproperty):
     propset=list()
     propname=str(ontoproperty.locale)
@@ -251,7 +251,6 @@ class FormProcess(View):
         context['tree_object'] = tree
         context['fileid']=fileid
         return render(request,"main/classes.html", context)
-
 # ----------------------------------------------------------------------------------------
 # generate_file: Function used for viewing and downloading the generated OWL instance file.
 # The file is displayed in a textbox for the user to be able to edit the contents.
