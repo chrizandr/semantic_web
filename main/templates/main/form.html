@@ -28,8 +28,14 @@
                           {% ifequal field.help_text "new_set" %}
                           <hr>
                           {% else %}
+                          <script>
+                            $(function() {
+                              $('#datetimepicker').datetimepicker();
+                            });
+                          </script>
                           <div class="block">
                           {{ field.label_tag }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ field }}
+
                          </div>
                          {% endifequal %}
                       </div>

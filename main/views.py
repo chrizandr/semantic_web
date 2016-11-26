@@ -108,7 +108,7 @@ class OwlProcessor(View):
                 temp.write(chunk)
             temp.close()
             try:
-                self.inputGraph = Graph(name)
+                self.inputGraph = Ontospy(name)
             except:
                 remove(name)
                 return self.construct_form(request, False, True)
@@ -235,6 +235,7 @@ class FormProcess(View):
                     name_list.append(name)
                     obj_prop_list[name]=tolist
                     data_prop_list[name]=tdlist
+                    print data_prop_list
             form = Data_type_form(request.POST or None, class_names=name_list, oprop_object=obj_prop_list, dprop_object=data_prop_list)
             context['form'] = form
             return render(request, self.template_name, context)

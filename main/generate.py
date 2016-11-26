@@ -12,7 +12,7 @@
 # Script is to generate the source RDF/OWL code for a given set of classes, attributes and their values.
 
 ################### Imports ##################
-# NONE
+import pdb
 ##################### Global ####################
 
 filestring = """<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE rdf:RDF [
@@ -67,7 +67,15 @@ def get_file(obj):
             finalstring += "\t" + obj_prop%(newentry[1]) + "\n\t\t" + old_individual%(value) +"\n\t" + end_obj_prop + "\n"
 
         elif newentry[0] == 'd':
-            finalstring += "\t" + data_prop%(newentry[2]) + "\n\t\t" + data_val%(newentry[1],value) + "\n\t" + end_data_prop + "\n"
+            if newentry[1] == 'dateTime':
+                entry = newentry[0]+"_"+newentry[1]+"_"+newentry[2]
+                day = entry+"_day"
+                month = entry+"_month"
+                year = entry+"_year"
+                timestring = obj[day]+'/'+obj[month]+'/'+obj[year]
+                finalstring += "\t" + data_prop%(newentry[2]) + "\n\t\t" + data_val%(newentry[1],timestring) + "\n\t" + end_data_prop + "\n"
+            else:
+                finalstring += "\t" + data_prop%(newentry[2]) + "\n\t\t" + data_val%(newentry[1],value) + "\n\t" + end_data_prop + "\n"
     finalstring += end_individual + "\n"
     result = filestring%(finalstring)
     return result
