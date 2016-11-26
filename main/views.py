@@ -25,24 +25,22 @@ from ontospy import *
 from django.core.files import File
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import Http404
 
 from models import Owl
 from treebuilder import *
 from .forms import OwlForm, UserForm, Data_type_form
-
+from generate import *
 
 
 ##################### Source ####################
 RDF_DECLARATION="<?xml version=\"1.0\"?><rdf:RDF\nxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\nxmlns:si=\"http://www.w3schools.com/rdf/\">"
 RDF_ENDING="</rdf:RDF>"
-
-
 # ----------------------------------------------------------------------------------------
 # index : function generates the basic index page of the application
 def index(request):
     context = dict()
     return render(request, 'main/index.html', context)
-
 
 # ----------------------------------------------------------------------------------------
 # mylogin_required : Function used to check wether a given user is logged in or not.
@@ -52,7 +50,6 @@ def mylogin_required(function):
         if not request.user.id:
             return HttpResponseRedirect("/login")
         return function(request, *args, **kwargs)
-
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap
@@ -64,7 +61,6 @@ def mylogin_required(function):
 def home(request):
     context = dict()
     return render(request, 'main/home.html', context)
-
 
 # ----------------------------------------------------------------------------------------
 # register: function to register a new user, redirects to home
@@ -90,7 +86,6 @@ def get_graph(request):
         print "enter"
         name = request.POST.get('fileid',None)
         Owl.objects.filter(id=name).delete()
-
     paginator = Paginator(graph_models, 10)
     page = request.GET.get('page', 1)
     try:
@@ -100,7 +95,6 @@ def get_graph(request):
     except EmptyPage:
         graphs = paginator.page(paginator.num_pages)
     return render(request,template_name,{'graphs':graphs,'count': graph_models.count()})
-
 
 @mylogin_required
 def submitted_classes():
@@ -123,10 +117,27 @@ def get_property_set(ontoproperty):
         propset.append((propname))
     return propset
 
+    '''else:
+         owl_content = generate_file(request.POST)
+         response = HttpResponse()
+         response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
+         response.write(st)
+         return response'''
 
 def generate_file(request):
-    st=""
-    return ""
+    if request.method == "POST":
+        if request.POST.get('code', False):
+            response = HttpResponse()
+            response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
+            response.write(str(request.POST["code"]))
+            return response
+        else:
+            st=get_file(request.POST)
+            context = dict()
+            context["code"] = str(st)
+            return render(request,"main/instances.html",context)
+    else:
+        raise Http404("Cannot acces this page like this")
 
 
 @mylogin_required
@@ -169,12 +180,6 @@ def create_class(request,**kwargs):
         form = Data_type_form(request.POST or None, class_names=name_list, oprop_object=obj_prop_list, dprop_object=data_prop_list)
         context['form'] = form
         return render(request, 'main/form.html', context)
-        '''else:
-             owl_content = generate_file(request.POST)
-             response = HttpResponse()
-             response['Content-Disposition'] = 'attachment; filename="%s.owl"' %(str(request.user.id)+"u_"+time.strftime('%H%M%S'))
-             response.write(st)
-             return response'''
     return render(request,"main/classes.html", context)
 
 # ----------------------------------------------------------------------------------------
@@ -193,7 +198,7 @@ class OwlProcessor(View):
 
     def post(self, request, *args, **kwargs):
         # ----------------------------------------------------
-        if request.POST["classes"]:
+        if request.POST:
             if not (request.FILES):
                 return self.construct_form(request, True, False)
             f = request.FILES["OWLfile"]
@@ -204,7 +209,7 @@ class OwlProcessor(View):
                 temp.write(chunk)
             temp.close()
             try:
-                self.inputGraph = Ontospy(name)
+                self.inputGraph = Graph(name)
             except:
                 remove(name)
                 return self.construct_form(request, False, True)

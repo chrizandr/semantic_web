@@ -40,5 +40,7 @@ urlpatterns = [
     #Link to display all the graph files that the user has stored in the database
     url(r'^displayfiles/$',views.get_graph,name="displayfiles"),
 
+    url(r'^generate/$',views.generate_file,name="generate"),
+
     url(r'^classes/(?P<fileid>\d+)$',views.create_class,name="classes")
 ]

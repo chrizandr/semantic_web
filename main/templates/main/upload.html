@@ -31,10 +31,10 @@
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                               {% if form_flag %}
-                              <span class="text-danger small">This field is required</span>
+                              <span class="text-danger large">*This field is required</span>
                               {% endif %}
                               {% if file_flag %}
-                              <span class="text-danger small">This file is not valid</span>
+                              <span class="text-danger medium">*The file you uploaded is not a valid OWL file</span>
                               {% endif %}
                                 {{form}}
                             </div>

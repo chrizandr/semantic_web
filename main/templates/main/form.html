@@ -22,13 +22,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
-                  <form name="cls_and_obj" id="opForm" method="POST" action="/generate" enctype="multipart/form-data" novalidate>{% csrf_token %}
+                  <form name="cls_and_obj" id="opForm" method="POST" action="/generate/" enctype="multipart/form-data" novalidate>{% csrf_token %}
                     {% for field in form %}
                       <div class="fieldWrapper">
                           {% ifequal field.help_text "new_set" %}
                           <hr>
                           {% else %}
-                          <span class="text-danger small">{{ field.errors }}</span>
                           <div class="block">
                           {{ field.label_tag }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ field }}
                          </div>
