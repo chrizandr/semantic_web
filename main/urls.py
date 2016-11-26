@@ -23,8 +23,6 @@ urlpatterns = [
     #-----------------------------------------------------------------
     # Basic index page for the application
     url(r'^$', views.index , name='index'),
-    # Basic home page for the user
-    url(r'^home/$', views.home, name='home'),
     # Page to register a new user
     url(r'^register/$', views.register, name='register'),
     # Login page
@@ -37,10 +35,10 @@ urlpatterns = [
     url(r'changedone/$', views.mylogin_required(auth_views.password_change_done),{'template_name': 'main/pdone.html'}, name='password_change_done'),
     # Main link to upload and process OWL file
     url(r'^upload/$', views.mylogin_required(views.OwlProcessor.as_view()), name='upload'),
-    #Link to display all the graph files that the user has stored in the database
+    # Link to display all the graph files that the user has stored in the database
     url(r'^displayfiles/$',views.get_graph,name="displayfiles"),
-
+    # Link to generate a RDF code for a given set of key value pairs
     url(r'^generate/$',views.generate_file,name="generate"),
-
-    url(r'^classes/(?P<fileid>\d+)$',views.create_class,name="classes")
+    # Link to get the class tree for a given Graph object, fileid is primary key.
+    url(r'^classes/(?P<fileid>\d+)$',views.mylogin_required(views.FormProcess.as_view()),name="classes")
 ]

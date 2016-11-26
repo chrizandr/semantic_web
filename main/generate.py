@@ -1,4 +1,19 @@
-import pdb
+##########################################################################################
+## Semantic Web Form                                                                    ##
+## Authors : Chris Andrew, Santhoshini Reddy                                            ##
+## Email: chris.g14@iiits.in ; santhoshini.g14@iiits.in                                 ##
+## Github: https://github.com/chrizandr ; https://github.com/Sanny26                    ##
+###################################################################                     ##
+## Description: This project was developed as part of the SEFP course at IIIT Sri City  ##
+## All code is available for free usage for educational purposes                        ##
+## Authors do not authorize commercial use of the source code                           ##
+##########################################################################################
+
+# Script is to generate the source RDF/OWL code for a given set of classes, attributes and their values.
+
+################### Imports ##################
+# NONE
+##################### Global ####################
 
 filestring = """<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE rdf:RDF [
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
@@ -13,7 +28,7 @@ filestring = """<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE rdf:RDF [
   xmlns:rdfs="&rdfs;"
   xmlns:owl="&owl;"
 >
-<owlx:Ontology owlx:name="#instance" 
+<owlx:Ontology owlx:name="#instance"
   xmlns:owlx="http://www.w3.org/2003/05/owl-xml">
 %s
 </owlx:Ontology>
@@ -30,6 +45,7 @@ data_prop = '<owlx:DataPropertyValue owlx:property="%s">'
 data_val = '<owlx:DataValue owlx:datatype="&xsd;%s">%s</owlx:DataValue>'
 end_data_prop = '</owlx:DataPropertyValue>'
 
+##################### Source ####################
 
 def get_file(obj):
     del obj['csrfmiddlewaretoken']
